@@ -1,15 +1,23 @@
 package masterung.androidthai.in.th.ungreadcode.fragment;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+
+import java.util.ArrayList;
 
 import masterung.androidthai.in.th.ungreadcode.NotificationActivity;
 import masterung.androidthai.in.th.ungreadcode.R;
+import masterung.androidthai.in.th.ungreadcode.utility.ChangeStringToArray;
 
 /**
  * Created by Teacher on 23 มีนาคม 2561.
@@ -17,7 +25,7 @@ import masterung.androidthai.in.th.ungreadcode.R;
 
 public class ShowNotiFrgment extends Fragment{
 
-    private String[] messageStrings;
+    private String[] messageStrings, loginStrings;
 
 
 
@@ -41,15 +49,52 @@ public class ShowNotiFrgment extends Fragment{
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        // Get Value From Argument
+//         Get Value From Argument
 
         messageStrings = getArguments().getStringArray("Message");
 
-        // Create Toobar
+//        Get Value From SharePreferance
+
+        getValueFromContextSharePerference();
+
+
+//         Create Toobar
         createToobar();
 
+//        Create ListView
+        createListView();
 
     }   // Main Class
+
+    private void getValueFromContextSharePerference() {
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("LoginFile", Context.MODE_PRIVATE);
+
+        String resultString = sharedPreferences.getString("Login", null);
+        Log.d("23MarchV1", "result form Prefer ==> " + resultString);
+
+        ChangeStringToArray changeStringToArray = new ChangeStringToArray(getActivity());
+        loginStrings = changeStringToArray.myChangeStringToArray(resultString);
+
+
+    }
+
+    private void createListView() {
+        ListView listView = getView().findViewById(R.id.listViewMessage);
+        ChangeStringToArray changeStringToArray = new ChangeStringToArray(getActivity());
+        String[] dateStrings = changeStringToArray.myChangeStringToArray(messageStrings[6]);
+        String[] newsStrings = changeStringToArray.myChangeStringToArray(messageStrings[7]);
+
+        String[] contentStrings = new String[dateStrings.length];
+        for (int i=0; i<dateStrings.length; i+=1) {
+            contentStrings[i] = dateStrings[i] + "\n" + newsStrings[i];
+        }
+
+
+        ArrayAdapter<String> stringArrayAdapter = new ArrayAdapter<String>(getActivity(),
+                android.R.layout.simple_list_item_1, contentStrings);
+        listView.setAdapter(stringArrayAdapter);
+
+    }
 
     private void createToobar() {
         Toolbar toolbar = getView().findViewById(R.id.toolbarShowNoti);
@@ -57,6 +102,8 @@ public class ShowNotiFrgment extends Fragment{
         ((NotificationActivity) getActivity())
                 .getSupportActionBar()
                 .setTitle(messageStrings[3]);
+
+        ((NotificationActivity) getActivity()).getSupportActionBar().setSubtitle(loginStrings[1] + " Parent");
     }
 
     @Nullable
